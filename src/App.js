@@ -1,24 +1,43 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, BrowserRouter as Router } from 'react-router-dom';
+import axios from 'axios';
+import NavBar from './components/Navbar';
+import Current from './components/Current';
+import Convert from './components/Convert';
 
 function App() {
+  const [currency, setCurrency] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  const getData = async () => {
+    try {
+      const response = await axios.get(
+        'https://www.cbr-xml-daily.ru/daily_json.js'
+      );
+      console.log(response.data);
+      setCurrency(response.data);
+      setLoading(false);
+    } catch (err) {
+      console.log('ERROR ', err);
+      //add some error alert
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <NavBar />
+      <Routes>
+        <Route exact path="/" element={<Convert currency={currency} />}></Route>
+        <Route
+          path="/profile"
+          element={<Current currency={currency} />}
+        ></Route>
+      </Routes>
+    </Router>
   );
 }
 
